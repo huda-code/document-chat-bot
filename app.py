@@ -76,7 +76,7 @@ class VectorStoreIndex:
             if best_match_score > 0.5:  # Set a threshold for relevance
                 best_sentence = self.documents[best_match_idx].strip()
                 surrounding_context = self._get_surrounding_sentences(best_match_idx)
-                return f"Found in document: {best_sentence}\n\nContext: {surrounding_context}"
+                return f"{best_sentence}\n {surrounding_context}"
             return "Sorry, I couldn't find an answer to your question in the document."
         
         def _get_surrounding_sentences(self, idx, window=1):
@@ -139,7 +139,11 @@ def chatbot(query):
 
 # Function to download chat log
 def download_chat_log():
-    return CHAT_LOG
+    with open(CHAT_LOG, "r") as f:
+        chat_log = f.read()
+    with open("chat_log_download.txt", "w") as f:
+        f.write(chat_log)
+    return "chat_log_download.txt"
 
 # Create and launch the Gradio interface
 iface = gr.Blocks()
@@ -158,7 +162,6 @@ with iface:
     
     upload_btn.upload(upload_document, inputs=upload_btn, outputs=upload_output)
     submit_btn.click(chatbot, inputs=chatbot_input, outputs=chatbot_output)
-    download_btn.click(download_chat_log, inputs=[], outputs=gr.File(label="Chat Log"))
+    download_btn.click(download_chat_log, inputs=[], outputs=gr.File())
 
-iface.launch()
-
+iface.launch(share=True)  # Enable public link
